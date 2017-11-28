@@ -2,7 +2,7 @@
     <div class="goods">
     	<div class="menu-wrapper" v-el:menu-wrapper>
     		<ul>
-    			<li v-for="item in goods" class="menu-item" class="{'current':currentIndex===$index}">
+    			<li v-for="item in goods" class="menu-item" :class="{'current':currentIndex===$index}" @click="selectMenu($index,$event)">
     				<span class="text border-1px">
     					<span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
     				</span>
@@ -27,17 +27,23 @@
     							<div class="price">
     								<span class="now">&yen;{{food.price}}</span><span class="old" v-show="food.oldPrice">&yen;{{food.oldPrice}}</span>
     							</div>
+                                <div class="cartcontrol-wrapper">
+                                    <cartcontrol :food="food"></cartcontrol>
+                                </div>
     						</div>
     					</li>
     				</ul>
     			</li>
     		</ul>
     	</div>
+        <shopcart v-ref:shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
     </div>
 </template>
 
 <script type="text/ecmascript-6">
     import BScroll from 'better-scroll';
+    import shopcart from 'components/shopcart/shopcart';
+    import cartcontrol from 'components/cartcontrol/cartcontrol';
 
     const ERR_OK = 0;
 
@@ -56,14 +62,24 @@
     	},
         computed: {
             currentIndex() {
-                for (let i = 0; i < this.listHeight.length; i++) {
+                 for (let i = 0; i < this.listHeight.length; i++) {
                     let height1 = this.listHeight[i];
                     let height2 = this.listHeight[i + 1];
-                    if (!height2 || (this.scrollY > height1 && this.scrollY < height2)) {
+                    if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
                         return i;
                     }
                 }
-                return 0;
+            },
+            selectFoods() {
+                let foods = [];
+                this.goods.forEach((good) => {
+                    good.foods.forEach((food) => {
+                        if (food.count) {
+                            foods.push(food);
+                        }
+                    });
+                });
+                return foods;
             }
         },
     	created() {
@@ -81,12 +97,16 @@
     	},
         methods: {
             _initScroll() {
-                this.menuScroll = new BScroll(this.$els.menuWrapper, {});
+                this.menuScroll = new BScroll(this.$els.menuWrapper, {
+                    click: true
+                });
                 this.foodsScroll = new BScroll(this.$els.foodsWrapper, {
-                    probeType: 3
+                    probeType: 3,
+                    click: true
                 });
                 this.foodsScroll.on('scroll', (pos) => {
                     this.scrollY = Math.abs(Math.round(pos.y));
+                    // console.log(this.scrollY);
                 });
             },
             _calculateHeight() {
@@ -98,6 +118,31 @@
                     height += item.clientHeight;
                     this.listHeight.push(height);
                 }
+                // console.log(this.listHeight);
+            },
+            selectMenu(index, event) {
+                /* 如果是浏览器的原生事件，return;否则pc端会同时有原生和betterScroll派发的两次事件 */
+                if (!event._constructed) {
+                    return;
+                }
+                let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
+                let el = foodList[index];
+                this.foodsScroll.scrollToElement(el, 300);
+            },
+            _drop(target) {
+                /* 体验优化，异步执行下落动画 */
+                this.$nextTick(() => {
+                    this.$refs.shopcart.drop(target);
+                });
+            }
+        },
+        components: {
+            shopcart,
+            cartcontrol
+        },
+        events: {
+            'cart.add'(target) {
+                this._drop(target);
             }
         }
     };
@@ -106,22 +151,22 @@
 <style lang="stylus" rel="stylesheet/stylus">
     @import "../../common/stylus/mixin"
     
-	.goods
-		display: flex
-		position: absolute
-		top: 174px
-		bottom: 46px
-		width: 100%
-		overflow: hidden
-		.menu-wrapper
-			flex: 0 0 80px
-			width: 80px/*兼容安卓浏览器*/
-			background: #f3f5f7
-			.menu-item
-				display: table/*无论几行文字，均可垂直居中*/
-				height: 54px
-				padding: 0 12px
+    .goods
+        display: flex
+        position: absolute
+        top: 174px
+        bottom: 46px
+        width: 100%
+        overflow: hidden
+        .menu-wrapper
+            flex: 0 0 80px
+            width: 80px/*兼容安卓浏览器*/
+            background: #f3f5f7
+            .menu-item
+                display: table/*无论几行文字，均可垂直居中*/
+                padding: 0 12px
                 line-height: 14px
+                height: 54px
                 &.current
                     position: relative
                     z-index: 10
@@ -204,4 +249,8 @@
                             text-decoration: line-through
                             font-size: 10px
                             color: rgb(147, 153, 159)
+                    .cartcontrol-wrapper
+                        position: absolute
+                        right: 0
+                        bottom: 12px
 </style>
