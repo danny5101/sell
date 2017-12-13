@@ -14,7 +14,7 @@
     			<li v-for="item in goods" class="food-list food-list-hook">
     				<h1 class="title">{{item.name}}</h1>
     				<ul>
-    					<li class="food-item border-1px" v-for="food in item.foods">
+    					<li @click="selectFood(food,$event)" class="food-item border-1px" v-for="food in item.foods">
     						<div class="icon">
     							<img width="57" height="57" :src="food.icon">
     						</div>
@@ -37,6 +37,7 @@
     		</ul>
     	</div>
         <shopcart v-ref:shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
+        <food :food="selectedFood" v-ref:food></food>
     </div>
 </template>
 
@@ -44,6 +45,7 @@
     import BScroll from 'better-scroll';
     import shopcart from 'components/shopcart/shopcart';
     import cartcontrol from 'components/cartcontrol/cartcontrol';
+    import food from 'components/food/food';
 
     const ERR_OK = 0;
 
@@ -57,7 +59,8 @@
     		return {
     			goods: [],
                 listHeight: [],
-                scrollY: 0
+                scrollY: 0,
+                selectedFood: {}
     		};
     	},
         computed: {
@@ -96,6 +99,13 @@
             this.classMap = ['decrease', 'discount', 'guarantee', 'invoice', 'special'];
     	},
         methods: {
+            selectFood(food, event) {
+                if (!event._constructed) {
+                    return;
+                }
+                this.selectedFood = food;
+                this.$refs.food.show();
+            },
             _initScroll() {
                 this.menuScroll = new BScroll(this.$els.menuWrapper, {
                     click: true
@@ -138,7 +148,8 @@
         },
         components: {
             shopcart,
-            cartcontrol
+            cartcontrol,
+            food
         },
         events: {
             'cart.add'(target) {
@@ -201,19 +212,20 @@
                             bg-image('special_3')
         .foods-wrapper
             flex: 1
-			.title
-				padding-left: 14px
-				height: 26px
-				line-height: 26px
-				border-left: 2px solid #d9dde1
-				font-size: 12px
-				color: rgb(147, 153, 159)
-				background: #f3f5f7
-			.food-item
-                display: flex
-                margin: 18px
-                padding-bottom: 18px
-                border-1px(rgba(7, 17, 27, 0.1))
+            .food-list
+                >.title
+                    padding-left: 14px
+                    height: 26px
+                    line-height: 26px
+                    border-left: 2px solid #d9dde1
+                    font-size: 12px
+                    color: rgb(147, 153, 159)
+                    background: #f3f5f7
+                .food-item
+                    display: flex
+                    margin: 18px
+                    padding-bottom: 18px
+                    border-1px(rgba(7, 17, 27, 0.1))
                 &:last-child
                     border-none()
                     margin-bottom: 0
