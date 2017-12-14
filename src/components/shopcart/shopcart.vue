@@ -4,7 +4,7 @@
 			<div class="content-left">
 				<div class="logo-wrapper">
 					<div class="logo" :class="{'highlight': totalCount>0}">
-						<i class="icon-shopping_cart"></i>
+						<i class="icon-close"></i>
 					</div>
 					<div class="num" v-show="totalCount>0">{{totalCount}}</div>
 				</div>
@@ -252,9 +252,9 @@
 						background: #2b343c
 						&.highlight
 							background: rgb(0, 160, 220)
-							.icon-shopping_cart
+							.icon-close
 								color: #fff
-						.icon-shopping_cart
+						.icon-close
 							line-height: 44px
 							font-size: 24px
 							color: #80858a
