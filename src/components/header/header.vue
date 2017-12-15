@@ -58,7 +58,7 @@
                 </div>
             </div>
             <div class="detail-close" @click="hideDetail">
-                <i class="icon-close"></i>
+                <i class="icon-remove_circle_outline"></i>
             </div>
         </div>
     </div>
