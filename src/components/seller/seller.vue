@@ -220,7 +220,6 @@
 						padding-top: 4px
 						color: rgb(77, 85, 93)
 						line-height: 10px
-							
 			.bulletin
 				padding: 18px 18px 0 18px
 				.title
@@ -284,7 +283,7 @@
 							margin-right: 6px
 							width: 120px
 							height: 90px
-							&: last-child
+							&:last-child
 								margin: 0
 			.info
 				padding: 18px 18px 0 18px
