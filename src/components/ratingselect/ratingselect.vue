@@ -1,11 +1,11 @@
 <template>
 	<div class="ratingselect">
 		<div class="rating-type border-1px">
-			<span @click="select(2, $event)" class="block positive" :class="{'active': selectType===2}">{{desc.all}}<span class="count">{{ratings.length}}</span></span>
-			<span @click="select(0, $event)" class="block positive" :class="{'active': selectType===0}">{{desc.positive}}<span class="count">{{positives.length}}</span></span>
-			<span @click="select(1, $event)" class="block negative" :class="{'active': selectType===1}">{{desc.negative}}<span class="count">{{negatives.length}}</span></span>
+			<span @click="select(2, $event)" class="block positive" :class="{'active': priSelectType === 2}">{{desc.all}}<span class="count">{{ratings.length}}</span></span>
+			<span @click="select(0, $event)" class="block positive" :class="{'active': priSelectType === 0}">{{desc.positive}}<span class="count">{{positives.length}}</span></span>
+			<span @click="select(1, $event)" class="block negative" :class="{'active': priSelectType === 1}">{{desc.negative}}<span class="count">{{negatives.length}}</span></span>
 		</div>
-		<div class="switch" @click="toggleContent" :class="{'on': onlyContent}">
+		<div class="switch" @click="toggleContent" :class="{'on': priOnlyContent}">
 			<span class="icon-keyboard_arrow_right"></span>
 			<span class="text">只看有内容的评价</span>
 		</div>
@@ -44,6 +44,12 @@
 				}
 			}
 		},
+		data() {
+			return {
+				priSelectType: this.selectType,
+				priOnlyContent: this.onlyContent
+			};
+		},
 		computed: {
 			positives() {
 				return this.ratings.filter((rating) => {
@@ -61,15 +67,16 @@
 				if (!event._constructed) {
 					return;
 				}
-				this.selectType = type;
-				this.$dispatch('ratingtype.select', type);
+
+				this.priSelectType = type;
+				this.$emit('ratingtype-select', type);
 			},
 			toggleContent(event) {
 				if (!event._constructed) {
 					return;
 				}
-				this.onlyContent = !this.onlyContent;
-				this.$dispatch('content.toggle', this.onlyContent);
+				this.priOnlyContent = !this.priOnlyContent;
+				this.$emit('content-toggle', this.priOnlyContent);
 			}
 		}
 	};

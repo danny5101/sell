@@ -1,5 +1,5 @@
 <template>
-	<div class="ratings" v-el:ratings>
+	<div class="ratings" ref="ratings">
 		<div class="ratings-content">
 			<div class="overview">
 				<div class="overview-left">
@@ -26,7 +26,7 @@
 				</div>
 			</div>
 			<split></split>
-			<ratingselect :select-type="selectType" :only-content="onlyContent" :desc="desc" :ratings="ratings"></ratingselect>
+			<ratingselect @ratingtype-select="metTypeSelect" @content-toggle="metContentToggle" :select-type="selectType" :only-content="onlyContent" :desc="desc" :ratings="ratings"></ratingselect>
 			<div class="rating-wrapper">
 				<ul>
 					<li v-for="rating in ratings" v-show="needShow(rating.rateType, rating.text)" class="rating-item border-1px">
@@ -86,7 +86,7 @@
 				if (response.errno === ERR_OK) {
 					this.ratings = response.data;
 					this.$nextTick(() => {
-						this.scroll = new BScroll(this.$els.ratings, {
+						this.scroll = new BScroll(this.$refs.ratings, {
 							click: true
 						});
 					});
@@ -109,16 +109,14 @@
 				} else {
 					return type === this.selectType;
 				}
-			}
-		},
-		events: {
-			'ratingtype.select'(type) {
+			},
+			metTypeSelect(type) {
 				this.selectType = type;
 				this.$nextTick(() => {
 					this.scroll.refresh();
 				});
 			},
-			'content.toggle'(onlyContent) {
+			metContentToggle(onlyContent) {
 				this.onlyContent = onlyContent;
 				this.$nextTick(() => {
 					this.scroll.refresh();

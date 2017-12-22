@@ -1,15 +1,15 @@
 <template>
     <div class="goods">
-    	<div class="menu-wrapper" v-el:menu-wrapper>
+    	<div class="menu-wrapper" ref="menuWrapper">
     		<ul>
-    			<li v-for="item in goods" class="menu-item" :class="{'current':currentIndex===$index}" @click="selectMenu($index,$event)">
+    			<li v-for="(item, index) in goods" class="menu-item" :class="{'current':currentIndex===index}" @click="selectMenu(index,$event)">
     				<span class="text border-1px">
     					<span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
     				</span>
     			</li>
     		</ul>
     	</div>
-    	<div class="foods-wrapper" v-el:foods-wrapper>
+    	<div class="foods-wrapper" ref="foodsWrapper">
     		<ul>
     			<li v-for="item in goods" class="food-list food-list-hook">
     				<h1 class="title">{{item.name}}</h1>
@@ -28,7 +28,7 @@
     								<span class="now">&yen;{{food.price}}</span><span class="old" v-show="food.oldPrice">&yen;{{food.oldPrice}}</span>
     							</div>
                                 <div class="cartcontrol-wrapper">
-                                    <cartcontrol :food="food"></cartcontrol>
+                                    <cartcontrol v-on:cart-add="_add" :food="food"></cartcontrol>
                                 </div>
     						</div>
     					</li>
@@ -36,8 +36,8 @@
     			</li>
     		</ul>
     	</div>
-        <shopcart v-ref:shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
-        <food :food="selectedFood" v-ref:food></food>
+        <shopcart ref="shopcart" :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
+        <food @cart-add-of-food="_add" :food="selectedFood" ref="food"></food>
     </div>
 </template>
 
@@ -107,10 +107,10 @@
                 this.$refs.food.show();
             },
             _initScroll() {
-                this.menuScroll = new BScroll(this.$els.menuWrapper, {
+                this.menuScroll = new BScroll(this.$refs.menuWrapper, {
                     click: true
                 });
-                this.foodsScroll = new BScroll(this.$els.foodsWrapper, {
+                this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
                     probeType: 3,
                     click: true
                 });
@@ -120,7 +120,7 @@
                 });
             },
             _calculateHeight() {
-                let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
+                let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook');
                 let height = 0;
                 this.listHeight.push(height);
                 for (let i = 0; i < foodList.length; i++) {
@@ -135,7 +135,7 @@
                 if (!event._constructed) {
                     return;
                 }
-                let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
+                let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook');
                 let el = foodList[index];
                 this.foodsScroll.scrollToElement(el, 300);
             },
@@ -144,17 +144,15 @@
                 this.$nextTick(() => {
                     this.$refs.shopcart.drop(target);
                 });
+            },
+            _add(target) {
+                this._drop(target);
             }
         },
         components: {
             shopcart,
             cartcontrol,
             food
-        },
-        events: {
-            'cart.add'(target) {
-                this._drop(target);
-            }
         }
     };
 </script>

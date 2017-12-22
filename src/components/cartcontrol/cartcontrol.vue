@@ -1,8 +1,10 @@
 <template>
 	<div class="cartcontrol">
-		<div class="cart-decrease" v-show="food.count>0" @click.stop.prevent="decreaseCart($event)" transiton="move">
-			<span class="inner icon-shopping_cart"></span>
-		</div>
+		<transition name="move">
+			<div class="cart-decrease" v-show="food.count>0" @click.stop.prevent="decreaseCart($event)">
+				<span class="inner icon-shopping_cart"></span>
+			</div>
+		</transition>
 		<div class="cart-count" v-show="food.count>0">{{food.count}}</div>
 		<div class="cart-add icon-thumb_down" @click.stop.prevent="addCart($event)"></div>
 	</div>
@@ -29,7 +31,8 @@
 				} else {
 					this.food.count++;
 				}
-				this.$dispatch('cart.add', event.target);
+				// console.log(event.target);
+				this.$emit('cart-add', event.target);
 			},
 			decreaseCart(event) {
 				if (!event._constructed) {
@@ -52,15 +55,16 @@
 			line-height: 24px
 			font-size: 24px
 			color: rgb(0, 160, 220)
-			&.move-transition
-				opacity: 1
-				transform: translate3d(0, 0, 0)
+			opacity: 1
+			transform: translate3d(0, 0, 0)
+			.inner
+				display: inline-block
+				transform: rotate(0)
+			&.move-enter-active, move-leave-active
 				transition: all 0.4s linear
 				.inner 
-					display: inline-block
 					transition: all 0.4s linear
-					transform: rotate(0)
-			&.move-enter, &.move-leave
+			&.move-enter, &.move-leave-to
 				opacity: 0
 				transform: translate3d(24px, 0, 0)
 				.inner
